@@ -78,8 +78,11 @@ class CalendarImport_FirstMigration extends Calendar_Basic_Migration
             'nid',
             'title'
         ));
+        $query->join('content_type_event', 'm', "n.nid = m.nid");
+        $query->condition('n.type','event','=');
+        $query->range(24, 5);
         $this->source = new MigrateSourceSQL($query, array(), NULL, $options);//add options
-        $this->destination  = new MigrateDestinationNode('article');
+        $this->destination  = new MigrateDestinationNode('myevents');
         $this->map          = new MigrateSQLMap($this->machineName, array(
             'nid' => array(
                 'type' => 'varchar',
