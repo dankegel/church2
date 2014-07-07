@@ -98,12 +98,10 @@ class CalendarImport_FirstMigration extends Calendar_Basic_Migration
             'promote',
             'sticky'
         ))->fields('nr',array('title','body','teaser'))
-        ->fields('m',array('field_datetime_value','field_datetime_value2','field_datetime_rrule'))
         ->fields('c',array('nid','field_event_contact_value'))
         ->fields('e',array('nid','field_event_contact_email_email'))
         ->fields('p',array('nid','field_event_contact_phone_value'));
         $query->join('node_revisions','nr',"n.nid=nr.nid");
-        $query->join('content_field_datetime','m',"n.nid=m.nid");
         $query->join('content_field_event_contact','c',"n.nid=c.nid");
         $query->join('content_field_event_contact_email','e',"n.nid=e.nid");
         $query->join('content_field_event_contact_phone','p',"n.nid=p.nid");
@@ -136,20 +134,11 @@ class CalendarImport_FirstMigration extends Calendar_Basic_Migration
           $this->addFieldMapping('body','body');
           $this->addFieldMapping('body:format')->defaultValue('full_html');
           $this->addFieldMapping('body:summary','teaser');
-          $this->addFieldMapping('field_event_date','field_datetime_value');
-          $this->addFieldMapping('field_event_date:to','field_datetime_value2');
-          $this->addFieldMapping('field_event_date:rrule','field_datetime_rrule');
           $this->addFieldMapping('field_contact', 'field_event_contact_value');
           $this->addFieldMapping('field_contact_email', 'field_event_contact_email_email');
           $this->addFieldMapping('field_contact_phone', 'field_event_contact_phone_value');
-         /* $this->addFieldMapping('field_date', 'field_datetime_value');
-          $this->addFieldMapping('field_date_range', 'field_datetime_value');
-          $this->addFieldMapping('field_date_range:to', 'field_datetime_value2');
-          $this->addFieldMapping('field_date_repeat:rrule', 'field_datetime_rrule');
-          $this->addFieldMapping('field_datetime', 'field_datetime_value');
-          $this->addFieldMapping('field_datetime:timezone')->defaultValue('America/Los_Angeles');
-          $this->addFieldMapping('field_datetime_range', 'field_datetime_value');
-          $this->addFieldMapping('field_datetime_range:to', 'field_datetime_value2');*/
+          
+
 
 
 
@@ -159,19 +148,23 @@ class CalendarImport_FirstMigration extends Calendar_Basic_Migration
     }
     
     
-/*    
+
+    
+   
     class CalendarImport_DateMigration extends Calendar_Basic_Migration
-{
+ {
     public function __construct($arguments)
     {
         parent::__construct($arguments);
         $this->description = t("import data to put into Date fields");
         $options = array('track_changes' => 1); //add options
-        $query = Database::getConnection('default', 'for_migration')->select('content_field_datetime', 'm')->fields('m',array('nid','field_datetime_value','field_datetime_value2','field_datetime_rrule'));
+        $query = Database::getConnection('default', 'for_migration')->select('content_field_datetime', 'm')->fields('m',array('nid','field_datetime_value','delta','field_datetime_value2','field_datetime_rrule'));
         $query->condition('m.nid',array('12075','12084','12087','12088','12091'),'IN');
         $this->source = new MigrateSourceSQL($query, array(), NULL, $options);//add options
-        $this->dependencies = array('CalendarImport_First'); 
-        $this->destination  = new MigrateDestinationNode('myevents');
+        $this->softDependencies = array('CalendarImport_First'); 
+        $this->destination  = new MigrateDestinationFieldCollection('field_event_date',
+        array('host_entity_type' => 'node')
+        );
         $this->map          = new MigrateSQLMap($this->machineName, array(
             'nid' => array(
                 'type' => 'varchar',
@@ -181,27 +174,24 @@ class CalendarImport_FirstMigration extends Calendar_Basic_Migration
                 'alias' => 'm'
             )
         ), MigrateDestinationNode::getKeySchema());
+    
+ $this->addFieldMapping('host_entity_id', 'nid')->sourceMigration('CalendarImport_Date');
+ $this->addFieldMapping('field_event_date_value','field_datetime_value');
+ $this->addFieldMapping('field_event_date_value2','field_datetime_value2');
+ $this->addFieldMapping('field_event_date_rrule','field_datetime_rrule');
         
-        
-        //$this->addFieldMapping('nid', 'nid'); // Connecting the D6 nid to the D7 nid
-
-        // Mapped fields
-          $this->addFieldMapping('field_event_date','field_datetime_value');
-          $this->addFieldMapping('field_event_date:to','field_datetime_value2');
-          $this->addFieldMapping('field_event_date:rrule','field_datetime_rrule');
-
   }
   
    public function prepareRow($current_row){
    
-  // drush_print($current_row);
+   drush_print_r($current_row);
+  
+             
+              
    }
+ }
   
-  }
-  
-  */
-  
- /* class CalendarImport_Contact_CollectionMigration extends Calendar_Basic_Migration
+ class CalendarImport_Contact_CollectionMigration extends Calendar_Basic_Migration
 {
     public function __construct($arguments)
     {
@@ -236,21 +226,14 @@ class CalendarImport_FirstMigration extends Calendar_Basic_Migration
         ), MigrateDestinationFieldCollection::getKeySchema());
         
          $this->addFieldMapping('host_entity_id', 'nid')->sourceMigration('CalendarImport_Contact_Collection');
-        //$this->addFieldMapping('nid', 'nid') // Connecting the field collection to the node using 'MID' - this row is "the trick"
-           // ->sourceMigration('CalendarImport_First') // If your user migration class was named 'MyUserMigration', the string is 'MyUser'
-           // ->description(t('The import of a field collection for a field in Events'));
-        // Mapped fields
-        //$this->addFieldMapping(NULL,'field_event_contact_value');
-            $this->addFieldMapping('field_event_contact', 'field_event_contact_value');
+        $this->addFieldMapping('field_event_contact', 'field_event_contact_value');
         $this->addFieldMapping('field_event_contact_email', 'field_event_contact_email_email');
         $this->addFieldMapping('field_event_contact_phone', 'field_event_contact_phone_value');
 
-       
-        // Unmapped fields (none for this class)
         
     }
     
     
     
  
-    }*/
+    }
