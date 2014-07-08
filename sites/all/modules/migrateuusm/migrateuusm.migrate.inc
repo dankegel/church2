@@ -100,13 +100,19 @@ class CalendarImport_FirstMigration extends Calendar_Basic_Migration
         ))->fields('nr',array('title','body','teaser'))
         ->fields('c',array('nid','field_event_contact_value'))
         ->fields('e',array('nid','field_event_contact_email_email'))
-        ->fields('p',array('nid','field_event_contact_phone_value'));
+        ->fields('p',array('nid','field_event_contact_phone_value'))
+        ->fields('m',array('nid','field_datetime_value','field_datetime_value2','field_datetime_rrule'));
         $query->join('node_revisions','nr',"n.nid=nr.nid");
         $query->join('content_field_event_contact','c',"n.nid=c.nid");
         $query->join('content_field_event_contact_email','e',"n.nid=e.nid");
         $query->join('content_field_event_contact_phone','p',"n.nid=p.nid");
+        $query->join('content_field_datetime','m', "n.nid = m.nid");
         $query->condition('n.type','event','=');
         $query->condition('n.nid',array('12075','12084','12087','12088','12091'),'IN');
+        $query->addExpression("GROUP_CONCAT(m.field_datetime_value SEPARATOR '||')", 'multipledatetime');
+        $query->addExpression("GROUP_CONCAT(m.field_datetime_value2 SEPARATOR '||')", 'multipledatetime2');
+        $query->addExpression("GROUP_CONCAT(m.field_datetime_rrule SEPARATOR '||')", 'multipledatetimerrule');
+        $query->groupBy('m.nid');
         //$query->range(0, 5);
         $this->source = new MigrateSourceSQL($query, array(), NULL, $options);//add options
         $this->destination  = new MigrateDestinationNode('myevents');
@@ -137,12 +143,30 @@ class CalendarImport_FirstMigration extends Calendar_Basic_Migration
           $this->addFieldMapping('field_contact', 'field_event_contact_value');
           $this->addFieldMapping('field_contact_email', 'field_event_contact_email_email');
           $this->addFieldMapping('field_contact_phone', 'field_event_contact_phone_value');
+          $this->addFieldMapping('field_event_date','multipledatetime')->separator('||');
+          $this->addFieldMapping('field_event_date:value2','multipledatetime2')->separator('||');
+          $this->addFieldMapping('field_event_date:rrule','multipledatetimerrule')->separator('||');
           
 
 
 
 
   }
+  
+     public function prepareRow($current_row){
+     
+     drush_print($current_row->nid . ' ' . $current_row->multipledatetime . ' ' . $current_row->multipledatetime2 .' ' . $current_row->multipledatetimerrule);
+
+/*$res = split('[||]', $current_row->multipledatetime);
+for ($i=0;$i< count($res);$i++){
+//drush_print($res[$i] . '||');
+}*/
+
+   //drush_print_r($current_row->multipledatetime);
+  
+             
+              
+   }
   
 
     }
@@ -160,25 +184,26 @@ class CalendarImport_FirstMigration extends Calendar_Basic_Migration
         $options = array('track_changes' => 1); //add options
         $query = Database::getConnection('default', 'for_migration')->select('content_field_datetime', 'm')->fields('m',array('nid','field_datetime_value','delta','field_datetime_value2','field_datetime_rrule'));
         $query->condition('m.nid',array('12075','12084','12087','12088','12091'),'IN');
+        $query->addExpression('GROUP_CONCAT(m.field_datetime_value)', 'multipledatetime');
+        $query->addExpression('GROUP_CONCAT(m.field_datetime_value2)', 'multipledatetime2');
+        $query->addExpression('GROUP_CONCAT(m.field_datetime_rrule)', 'multipledatetimerrule');
+        $query->groupBy('m.nid');
         $this->source = new MigrateSourceSQL($query, array(), NULL, $options);//add options
         $this->softDependencies = array('CalendarImport_First'); 
-        $this->destination  = new MigrateDestinationFieldCollection('field_event_date',
-        array('host_entity_type' => 'node')
-        );
+          $this->destination  = new MigrateDestinationNode('myevents');
         $this->map          = new MigrateSQLMap($this->machineName, array(
             'nid' => array(
                 'type' => 'varchar',
                 'length' => 6,
                 'not null' => TRUE,
                 'description' => 'Account ID.',
-                'alias' => 'm'
+                'alias' => 'n'
             )
         ), MigrateDestinationNode::getKeySchema());
-    
- $this->addFieldMapping('host_entity_id', 'nid')->sourceMigration('CalendarImport_Date');
- $this->addFieldMapping('field_event_date_value','field_datetime_value');
- $this->addFieldMapping('field_event_date_value2','field_datetime_value2');
- $this->addFieldMapping('field_event_date_rrule','field_datetime_rrule');
+       
+ $this->addFieldMapping('field_event_date_value','multipledatetime')->separator(',');
+ $this->addFieldMapping('field_event_date_value2','multipledatetime2')->separator(',');
+ $this->addFieldMapping('field_event_date_rrule','multipledatetimerrule')->separator(',');
         
   }
   
