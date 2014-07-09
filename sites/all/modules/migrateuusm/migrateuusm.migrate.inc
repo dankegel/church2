@@ -108,7 +108,8 @@ class CalendarImport_FirstMigration extends Calendar_Basic_Migration
         $query->join('content_field_event_contact_phone','p',"n.nid=p.nid");
         $query->join('content_field_datetime','m', "n.nid = m.nid");
         $query->condition('n.type','event','=');
-        $query->condition('n.nid',array('12075','12084','12087','12088','12091'),'IN');
+        //$query->condition('n.nid',array('12075','12084','12087','12088','12091','12135','12214'),'IN');
+        //$query->range(0, 15);
         $query->addExpression("GROUP_CONCAT(m.field_datetime_value SEPARATOR '||')", 'multipledatetime');
         $query->addExpression("GROUP_CONCAT(m.field_datetime_value2 SEPARATOR '||')", 'multipledatetime2');
         $query->addExpression("GROUP_CONCAT(m.field_datetime_rrule SEPARATOR '||')", 'multipledatetimerrule');
@@ -126,7 +127,7 @@ class CalendarImport_FirstMigration extends Calendar_Basic_Migration
             )
         ), MigrateDestinationNode::getKeySchema());
         
-          $this->addFieldMapping('nid', 'nid'); // Connecting the D6 nid to the D7 nid
+          $this->addFieldMapping('nid', 'n.nid'); // Connecting the D6 nid to the D7 nid
           $this->addFieldMapping('is_new')->defaultValue(TRUE)->description(t('Build the new user (0|1)'));
 
         // Mapped fields
@@ -155,8 +156,8 @@ class CalendarImport_FirstMigration extends Calendar_Basic_Migration
   
      public function prepareRow($current_row){
      
-     drush_print($current_row->nid . ' ' . $current_row->multipledatetime . ' ' . $current_row->multipledatetime2 .' ' . $current_row->multipledatetimerrule);
-
+date(DATE_ATOM, strtotime($current_row->multipledatetime));
+date(DATE_ATOM, strtotime($current_row->multipledatetime2));
 /*$res = split('[||]', $current_row->multipledatetime);
 for ($i=0;$i< count($res);$i++){
 //drush_print($res[$i] . '||');
