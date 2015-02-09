@@ -118,9 +118,9 @@ class SermonImport_FirstMigration extends Calendar_Basic_Migration
 	     $query->join('content_field_sermon_text','st','st.nid=n.nid');
 	     $query->condition('n.type','sermon','=');
 	     $query->condition('st.field_sermon_text_value','','!=');
-	     $query->condition('f.fid','475','<');
-             $query->condition('f.fid','425','>');
-	     $query->range(0, 15);
+	   //  $query->condition('f.fid','475','<');
+        //     $query->condition('f.fid','425','>');
+	     $query->range(0, 150);
 	     $this->source = new MigrateSourceSQL($query, array(), NULL, $options);//add options
 	     $this->destination  = new MigrateDestinationNode('sermons');
 	    
