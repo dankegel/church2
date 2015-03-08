@@ -34,6 +34,12 @@ function migrateuusm_migrate_api()
         // argument is required. The group_name is optional (defaulting to 'default')
         // but specifying it is a best practice.
         'migrations' => array(
+           
+           'Users' => array(
+            'class_name' => 'UsersMigration',
+                'group_name' => 'UUSMMigrate'
+           ),
+        
             'SermonImport_First' => array(
                 'class_name' => 'SermonImport_FirstMigration',
                 'group_name' => 'UUSMMigrate'
@@ -44,7 +50,7 @@ function migrateuusm_migrate_api()
                 'group_name' => 'UUSMMigrate'
             ),
             
-           'CalendarImport_Date' => array(
+         /*  'CalendarImport_Date' => array(
             
                 'class_name' => 'CalendarImport_DateMigration',
                 'group_name' => 'UUSMMigrate'
@@ -53,7 +59,7 @@ function migrateuusm_migrate_api()
             'CalendarImport_Contact_Collection'=> array(
                  'class_name' => 'CalendarImport_Contact_CollectionMigration',
                  'group_name' => 'UUSMMigrate'
-            ),
+            ),*/
             
             
             
@@ -175,6 +181,148 @@ class SermonImport_FirstMigration extends Calendar_Basic_Migration
 	  
  }
     }
+    
+  //*****Roles Migration***referenced in UsersMigration****/
+  
+  //*****END Roles Migration********/
+    
+    //******USERS*****/
+    
+    class UsersMigration extends Calendar_Basic_Migration {
+	public function __construct($arguments)
+	{
+		parent::__construct($arguments);
+	$this->description = t("import Users");
+	$options = array('track_changes' => 1);
+  $query = Database::getConnection('default','for_migration')->select('users', 'u')->fields('u',array(
+        'uid', 
+        'name', 
+        'pass', 
+        'mail', 
+        'created', 
+        'access',
+        'login', 
+        'status', 
+        'picture', 
+        'init'));
+    // This is supposed to get roles not sure how.
+    $source_fields = array(
+      'uid' => t('User ID'),
+      'roles' => t('The set of roles assigned to a user.'),
+    );
+    // Set source and destination.
+   
+    //By default, Migrate will try to directly join the source query to the map table, 
+    //which is (by default) in the Drupal database, as a performance optimization. 
+    //The following line disables this behavior:
+    //$this->source = new MigrateSourceSQL($query, $source_fields,NULL, array('map_joinable' => FALSE));
+    $this->destination = new MigrateDestinationUser(array('md5_passwords' => TRUE));
+    // Set up database mapping.
+    $this->map = new MigrateSQLMap($this->machineName,
+      array(
+        'uid' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'description' => 'D6 Unique User ID',
+          'alias' => 'u',
+        )
+      ),
+       MigrateDestinationNode::getKeySchema(),
+       'for_migration'
+    );
+    
+     $this->source = new MigrateSourceSQL($query, $source_fields);
+    // Add simple field mappings
+    $this->addFieldMapping('is_new')
+      ->defaultValue(TRUE);
+    $this->addFieldMapping('uid', 'id_to_preserve');
+    $this->addFieldMapping('name', 'name')->dedupe('users', 'name');
+    $this->addFieldMapping('pass', 'pass');
+    $this->addFieldMapping('mail', 'mail')->dedupe('users', 'mail');
+    $this->addFieldMapping('language')->defaultValue('');
+    $this->addFieldMapping('theme')->defaultValue('');
+    $this->addFieldMapping('signature')->defaultValue('');
+    $this->addFieldMapping('signature_format')->defaultValue('filtered_html');
+    $this->addFieldMapping('created', 'created');
+    $this->addFieldMapping('access', 'access');
+    $this->addFieldMapping('login', 'login');
+    $this->addFieldMapping('status', 'status');
+    $this->addFieldMapping('picture')->defaultValue(0);
+    $this->addFieldMapping('init', 'init');
+    $this->addFieldMapping('timezone')->defaultValue(NULL);
+    $this->addFieldMapping('roles', 'roles');
+  }
+  // Set up Roles.
+  // massage the user roles before saving
+  public function prepareRow($current_row) {
+    $source_id = $current_row->uid;
+ //   drush_print($source_id);
+    $query = Database::getConnection('default','for_migration')
+      ->select('users_roles', 'r')
+      ->fields('r', array('uid', 'rid'))
+      ->havingCondition('r.uid', $source_id, '=');
+    $results = $query->execute();
+    // add the anonymous role for everyone
+    $roles = array('1' => '1','2'=>'2');
+    //$roles = array('2' => '2');
+    foreach ($results as $row) {
+      // adjust the old to new role id's
+      // Webmaster (rid 8) needs role id 3 to match admin because
+      //the current administrator role is 3.
+      if ($row->rid == 3) {
+        $roles['6'] = '6';
+      }
+      elseif ($row->rid == 4) {
+        // group editor from 10 to 4 to match editor role in D7 installation
+        $roles['8'] = '8';
+      }
+      elseif ($row->rid == 5) {
+        // church member from 3 to 8
+        $roles['9'] = '9';
+      }
+      elseif ($row->rid == 6) {
+        // group leader 4 to 10
+        $roles['12'] = '12';
+      }
+      
+            elseif ($row->rid == 7) {
+        // group leader 4 to 10
+        $roles['11'] = '11';
+      }
+      
+            elseif ($row->rid == 8) {
+        // group leader 4 to 10
+        $roles['13'] = '13';
+      }
+      
+            elseif ($row->rid == 9) {
+        // group leader 4 to 10
+        $roles['5'] = '5';
+      }
+      
+            elseif ($row->rid == 10) {
+        // group leader 4 to 10
+        $roles['7'] = '7';
+      }
+      
+            elseif ($row->rid == 11) {
+        // group leader 4 to 10
+        $roles['10'] = '10';
+      }
+     
+      else {
+        // The rest are the same, mostly because there are 7 more roles from D6 that go into D7
+        $roles[$row->rid] = $row->rid;
+      }
+    }
+    $current_row->roles = $roles;
+    drush_print_r($roles);
+    return TRUE;
+  }
+} // close the ourUsersMigration class
+    
+    /*******END USERS****/
 
 //The following class imports all the events and dates.  Everything gets put
 //into the myevents content type.  The fancy trick here is to fetch a comma delimited list
