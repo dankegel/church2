@@ -1,0 +1,14 @@
+name = "UUSM Migration"
+description = "Import from UUSM Drupal 6 database"
+package = Migration
+dependencies[] = migrate (>2.5)
+dependencies[] = migrate_extras
+dependencies[] = date (>=2.7)
+dependencies[] = date_api
+;class file:
+files[] = migrateuusm.module
+files[] = migrateuusm.migrate.inc
+;user interface
+dependencies[] = migrate_ui
+version = "7.x-1.2"
+core = 7.x
