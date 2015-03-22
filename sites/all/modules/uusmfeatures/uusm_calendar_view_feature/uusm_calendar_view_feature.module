@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the UUSM Calendar View Feature feature.
+ */
+
+include_once 'uusm_calendar_view_feature.features.inc';
