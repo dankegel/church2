@@ -39,6 +39,11 @@ function migrateuusm_migrate_api()
             'class_name' => 'UsersMigration',
                 'group_name' => 'UUSMMigrate'
            ),
+
+            'Roles' => array(
+                'class_name' => 'RolesMigration',
+                'group_name' => 'UUSMMigrate'
+            ),
         
             'SermonImport_First' => array(
                 'class_name' => 'SermonImport_FirstMigration',

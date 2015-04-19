@@ -7,6 +7,7 @@ dependencies[] = date (>=2.7)
 dependencies[] = date_api
 ;class file:
 files[] = migrateuusm.module
+files[] = roles.migrate.inc
 files[] = migrateuusm.migrate.inc
 ;user interface
 dependencies[] = migrate_ui
