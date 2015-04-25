@@ -9,6 +9,7 @@ dependencies[] = date_api
 files[] = migrateuusm.module
 files[] = roles.migrate.inc
 files[] = users.migrate.inc
+files[] = calendar.migrate.inc
 files[] = migrateuusm.migrate.inc
 ;user interface
 dependencies[] = migrate_ui
