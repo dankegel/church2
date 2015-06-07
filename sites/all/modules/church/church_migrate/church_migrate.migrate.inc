@@ -35,6 +35,10 @@ function church_migrate_migrate_api()
                 'class_name' => 'ChurchRolesMigration',
                 'group_name' => 'ChurchMigrate'
             ),
+            'Users' => array(
+                'class_name' => 'ChurchUsersMigration',
+                'group_name' => 'ChurchMigrate'
+            ),
         )
     );
     return $api;

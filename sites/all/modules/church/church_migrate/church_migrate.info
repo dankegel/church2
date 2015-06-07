@@ -7,6 +7,7 @@ dependencies[] = migrate_extras
 files[] = church_migrate.module
 files[] = church_migrate.migrate.inc
 files[] = roles.migrate.inc
+files[] = users.migrate.inc
 ;user interface
 dependencies[] = migrate_ui
 version = "7.x-1.2"
