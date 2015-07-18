@@ -47,7 +47,7 @@ _EOF_
 do_install() {
     cd "$projdir"
 
-    if test -f sites/defaults/settings.php
+    if test -f sites/default/settings.php
     then
         echo "Already installed, aborting"
         exit 1
@@ -91,6 +91,24 @@ _EOF_
     # You may also need to set base_url in sites/default/settings.php
 }
 
+do_reinstall() {
+    cd "$projdir"
+    pwd
+
+    if ! test -f sites/default/settings.php
+    then
+        echo "Not already installed, aborting"
+        exit 1
+    fi
+    mv sites/default/settings.php ~/settings.php.bak
+
+    # Note: older versions of drush didn't need the 'standard' word
+    drush si standard --site-name=Church --db-url=mysql://root:$sqlrootpw@localhost/drupal --account-name=drupal --account-pass=drupal
+
+    chmod 755 sites/default
+    mv ~/settings.php.bak sites/default/settings.php
+}
+
 usage() {
     cat <<_EOF_
 Usage: $0 deps|install
@@ -100,5 +118,6 @@ _EOF_
 case $1 in
 deps) do_deps;;
 install) do_install;;
+reinstall) do_reinstall;;
 *) usage; exit 1;;
 esac
