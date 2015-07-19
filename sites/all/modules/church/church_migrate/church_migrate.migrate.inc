@@ -12,6 +12,7 @@
  */
 function church_migrate_migrate_api()
 {
+require 'generated_taxonomy_migration_class_list.inc';
     $api = array(
         'api' => 2,
         // Migrations can be organized into groups. The key used here will be the
@@ -43,7 +44,7 @@ function church_migrate_migrate_api()
                 'class_name' => 'ChurchRoomsMigration',
                 'group_name' => 'ChurchMigrate'
             ),
-        )
+        ) + $generated_array
     );
     return $api;
 }

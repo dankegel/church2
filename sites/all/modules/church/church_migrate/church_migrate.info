@@ -10,6 +10,7 @@ files[] = roles.migrate.inc
 files[] = users.migrate.inc
 files[] = nodes.migrate.inc
 files[] = rooms.migrate.inc
+files[] = generated_taxonomy_migration_classes.inc
 ;user interface
 dependencies[] = migrate_ui
 version = "7.x-1.2"

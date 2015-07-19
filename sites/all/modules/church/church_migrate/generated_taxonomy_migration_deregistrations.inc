@@ -1,0 +1,14 @@
+<?php
+       Migration::deregisterMigration('ClassType');
+       Migration::deregisterMigration('EventType');
+       Migration::deregisterMigration('AdType');
+       Migration::deregisterMigration('Department');
+       Migration::deregisterMigration('Newsletter');
+       Migration::deregisterMigration('GroupType');
+       Migration::deregisterMigration('VolunteerTaskType');
+       Migration::deregisterMigration('PolicyType');
+       Migration::deregisterMigration('LinkType');
+       Migration::deregisterMigration('BlogCategory');
+       Migration::deregisterMigration('GradeAgeRange');
+       Migration::deregisterMigration('Tags');
+?>

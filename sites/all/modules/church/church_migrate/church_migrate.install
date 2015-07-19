@@ -1,13 +1,50 @@
 <?php
 /**
 * @file
+*/
+
+/**
+* Implements hook_install().
+*/
+function church_migrate_install() {
+  // When the module is installed, it should create its vocabularies
+require 'generated_taxonomy_migration_vocabulary_list.inc';
+  foreach ($generated_array as $vocabulary) {
+    _my_create_voc($vocabulary);
+  }
+  // and register its migrations, so user doesn't need to do drush mreg:
+  migrate_static_registration();
+}
+
+/**
 * Implements hook_disable().
-*
-* the migration module should deregister its migrations
 */
 function church_migrate_disable() {
+   // When the module is disabled, it should deregister its migrations
    // based on: drupal.org/node/1418350#comment-5557772
   Migration::deregisterMigration('Roles');
   Migration::deregisterMigration('Users');
   Migration::deregisterMigration('Rooms');
+require 'generated_taxonomy_migration_deregistrations.inc';
+}
+
+/*------------------ helpers --------------------*/
+// See http://dribbit.eu/drupal-7/programatically-add-taxonomy-vocabularies-in-drupal-7
+
+/**
+ * Create a taxonomy vocabulary.
+ * @param array $vocabulary
+ *  An array containing arrays of vocabulary
+ *  'machine_name' and 'name' key value pairs.
+ */
+function _my_create_voc($vocabulary) {
+  $vid = db_query("SELECT vid FROM {taxonomy_vocabulary} WHERE machine_name = :name", array(':name' => $vocabulary['machine_name']))->fetchField();
+
+  if (!$vid) {
+    // Save the vocabulary if it doesn't exist.
+    taxonomy_vocabulary_save((object) array(
+      'name' => $vocabulary['name'],
+      'machine_name' => $vocabulary['machine_name'],
+    ));
+  }
 }
