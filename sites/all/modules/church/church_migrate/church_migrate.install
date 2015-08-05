@@ -6,7 +6,7 @@
 /**
 * Implements hook_install().
 */
-function church_migrate_install() {
+function church_migrate_enable() {
   // When the module is installed, it should create its vocabularies
 require 'generated_taxonomy_migration_vocabulary_list.inc';
   foreach ($generated_array as $vocabulary) {
