@@ -105,7 +105,7 @@ do_reinstall() {
     mv sites/default/settings.php ~/settings.php.bak
 
     # Note: older versions of drush didn't need the 'standard' word
-    drush si standard --site-name=Church --db-url=mysql://root:$sqlrootpw@localhost/drupal --account-name=drupal --account-pass=drupal
+    drush si standard --site-name=Church --db-url=mysql://root:$sqlrootpw@localhost/drupal --account-name=drupal --account-pass=drupal || true
 
     chmod 755 sites/default
     mv ~/settings.php.bak sites/default/settings.php
@@ -130,6 +130,7 @@ class Church@VMNAME@Migration extends Migration {
           ->fields('td', array('tid', 'vid', 'name', 'description', 'weight'))
           ->condition('td.vid', $vid, '=');
    # Mark nonjoinable, since we expect source to be remote
+   # That means we need to simulate a join in prepareRow()
    $this->source = new MigrateSourceSQL($query, array(), NULL, array('map_joinable' => FALSE));
    $this->destination = new MigrateDestinationTerm($vmname);
    $this->map = new MigrateSQLMap($this->machineName,
@@ -147,6 +148,32 @@ class Church@VMNAME@Migration extends Migration {
    );
    $this->addFieldMapping('name', 'name');
    $this->addFieldMapping('description', 'description');
+   $this->addFieldMapping('parent', 'parent')
+     ->sourceMigration($this->machineName);
+  }
+
+  public function preImport() {
+   # Shared among all generated taxonomy migration classes
+   global $taxonomy_migration_parentof;
+   if (isset($taxonomy_migration_parentof))
+     return;
+
+   # Retrieve the hierarchy table so we can decorate rows with it
+   $result = Database::getConnection('default', 'for_migration')
+      ->query("select * from term_hierarchy where parent != 0");
+   if ($result) {
+      foreach ($result as $row) {
+         $taxonomy_migration_parentof[$row->tid] = $row->parent;
+      }
+   }
+  }
+
+  public function prepareRow($current_row) {
+   global $taxonomy_migration_parentof;
+   if (parent::prepareRow($current_row) === FALSE) {
+     return FALSE;
+   }
+   $current_row->parent = $taxonomy_migration_parentof[$current_row->tid];
   }
 }
 EOF
