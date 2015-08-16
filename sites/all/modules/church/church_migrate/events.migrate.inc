@@ -17,7 +17,7 @@ class ChurchEventsMigration extends ChurchNodeMigration {
       'field_room',
     ));
     $this->addFieldMapping('field_datetime:to', 'field_datetime:value2');
-    $this->addFieldMapping('field_datetime:timezone', 'field_datetime:timezone') ->defaultvalue('America/Los_Angeles'));
+    $this->addFieldMapping('field_datetime:timezone', 'field_datetime:timezone') ->defaultvalue('America/Los_Angeles');
     $this->addFieldMapping('field_datetime:rrule', 'field_datetime:rrule');
   }
 }
