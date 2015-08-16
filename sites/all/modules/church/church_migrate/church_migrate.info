@@ -3,6 +3,9 @@ description = "Import from Church Drupal 6 database"
 package = Migration
 dependencies[] = migrate (>2.5)
 dependencies[] = migrate_extras
+dependencies[] = migrate_d2d
+; should be church_event
+dependencies[] = event
 ;class file:
 files[] = church_migrate.module
 files[] = church_migrate.migrate.inc
@@ -11,6 +14,7 @@ files[] = users.migrate.inc
 files[] = nodes.migrate.inc
 files[] = rooms.migrate.inc
 files[] = generated_taxonomy_migration_classes.inc
+files[] = events.migrate.inc
 ;user interface
 dependencies[] = migrate_ui
 version = "7.x-1.2"

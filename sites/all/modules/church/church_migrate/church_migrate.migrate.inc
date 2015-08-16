@@ -42,21 +42,40 @@ require 'generated_taxonomy_migration_class_list.inc';
             ),
             'Rooms' => array(
                 'class_name' => 'ChurchRoomsMigration',
-                'group_name' => 'ChurchMigrate'
+                'dependencies' => array('Users'),
+                'description' => t('Migrate Rooms'),
+                'destination_type' => 'room',
+                'group_name' => 'ChurchMigrate',
+                'source_connection' => 'for_migration',
+                'source_type' => 'room',
+                'source_version' => 6,
+                'user_migration' => 'Users',
             ),
             'Menu' => array(
                 'class_name' => 'DrupalMenu6Migration',   # yes, we're mixing in a migrate_d2d class!
+                'description' => t('Migrate menus from Drupal 6'),
                 'group_name' => 'ChurchMigrate',
-                'description' => t('Migration of menus from Drupal 6'),
                 'source_connection' => 'for_migration',
                 'source_version' => 6,
             ),
             'MenuLinks' => array(
                 'class_name' => 'DrupalMenuLinks6Migration',   # yes, we're mixing in a migrate_d2d class!
+                'dependencies' => array('Menu'),
+                'description' => t('Migrate menu links from Drupal 6'),
                 'group_name' => 'ChurchMigrate',
-                'description' => t('Migration of menu links from Drupal 6'),
                 'source_connection' => 'for_migration',
                 'source_version' => 6,
+            ),
+            'Events' => array(
+                'class_name' => 'ChurchEventsMigration',
+                'dependencies' => array('MenuLinks', 'Rooms'),
+                'description' => t('Migrate Events'),
+                'destination_type' => 'event',
+                'group_name' => 'ChurchMigrate',
+                'source_connection' => 'for_migration',
+                'source_type' => 'event',
+                'source_version' => 6,
+                'user_migration' => 'Users',
             ),
         ) + $generated_array
     );
