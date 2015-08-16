@@ -44,6 +44,20 @@ require 'generated_taxonomy_migration_class_list.inc';
                 'class_name' => 'ChurchRoomsMigration',
                 'group_name' => 'ChurchMigrate'
             ),
+            'Menu' => array(
+                'class_name' => 'DrupalMenu6Migration',   # yes, we're mixing in a migrate_d2d class!
+                'group_name' => 'ChurchMigrate',
+                'description' => t('Migration of menus from Drupal 6'),
+                'source_connection' => 'for_migration',
+                'source_version' => 6,
+            ),
+            'MenuLinks' => array(
+                'class_name' => 'DrupalMenuLinks6Migration',   # yes, we're mixing in a migrate_d2d class!
+                'group_name' => 'ChurchMigrate',
+                'description' => t('Migration of menu links from Drupal 6'),
+                'source_connection' => 'for_migration',
+                'source_version' => 6,
+            ),
         ) + $generated_array
     );
     return $api;
